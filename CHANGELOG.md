@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/compare/v2.0.0...v2.0.1) (2026-06-15)
+
+
+### Bug Fixes
+
+* Using removed useFrameProcessor instead of useFrameOutput in vision camera V5 ([#134](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/issues/134)) ([#135](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/issues/135)) ([c36f37b](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/commit/c36f37b1f51330cef9a4292c34100a8ff93e2a80))
+
 ## [2.0.0](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/compare/v1.2.9...v2.0.0) (2026-05-20)
 
 
