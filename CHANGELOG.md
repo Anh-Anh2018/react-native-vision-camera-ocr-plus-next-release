@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.3](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/compare/v2.0.2...v2.0.3) (2026-08-11)
+
+
+### Bug Fixes
+
+* scanText on iOS working only when device is portrait [#137](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/issues/137) ([#141](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/issues/141)) ([acd7171](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/commit/acd7171f0c59e9bf31db1cdc8bdbaa57a9167cd7))
+
 ### [2.0.2](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/compare/v2.0.1...v2.0.2) (2026-08-01)
 
 ### [2.0.1](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/compare/v2.0.0...v2.0.1) (2026-06-15)
