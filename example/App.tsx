@@ -11,13 +11,11 @@ import {
   View,
 } from 'react-native';
 import {
-  Camera,
   useCameraDevice,
   useCameraPermission,
-  useFrameOutput,
 } from 'react-native-vision-camera';
-import { scheduleOnRN } from 'react-native-worklets';
 import {
+  Camera,
   PhotoRecognizer,
   useTranslate,
 } from 'react-native-vision-camera-ocr-plus';
@@ -38,6 +36,7 @@ const scanRegion = {
 type LanguageOption = { label: string; value: Languages };
 
 const LANGUAGES: LanguageOption[] = [
+  { label: 'Vietnamese (Tiếng Việt)', value: 'vi' },
   { label: 'English', value: 'en' },
   { label: 'Spanish', value: 'es' },
   { label: 'French', value: 'fr' },
@@ -62,18 +61,18 @@ export default function App() {
   const [detectedText, setDetectedText] = React.useState<string>();
   const [image, setImage] = React.useState<string | null>(null);
   const [imageText, setImageText] = React.useState<string>('');
-  const [targetLanguage, setTargetLanguage] = React.useState<Languages>('en');
-  const [langPickerVisible, setLangPickerVisible] = React.useState(false);
+  const [sourceLanguage, setSourceLanguage] = React.useState<Languages>('en');
+  const [targetLanguage, setTargetLanguage] = React.useState<Languages>('vi');
+  const [useCropRegion, setUseCropRegion] = React.useState<boolean>(false);
+  const [langPickerMode, setLangPickerMode] = React.useState<'source' | 'target' | null>(null);
+  const [isTranslating, setIsTranslating] = React.useState<boolean>(false);
 
-  const selectedLabel =
+  const selectedSourceLabel =
+    LANGUAGES.find((l) => l.value === sourceLanguage)?.label ?? sourceLanguage;
+  const selectedTargetLabel =
     LANGUAGES.find((l) => l.value === targetLanguage)?.label ?? targetLanguage;
 
-  const translatorOptions = React.useMemo(
-    () => ({ from: 'en' as Languages, to: targetLanguage, scanRegion }),
-    [targetLanguage]
-  );
-
-  const { scanText, translate } = useTranslate(translatorOptions);
+  const { translate } = useTranslate({ from: sourceLanguage, to: targetLanguage });
 
   React.useEffect(() => {
     if (!hasPermission) requestPermission();
@@ -89,11 +88,14 @@ export default function App() {
         });
         const rawText = ocrResult.resultText || '';
         if (rawText) {
+          setIsTranslating(true);
           const translated = await translate(rawText);
           setImageText(translated || rawText);
         }
       } catch (error) {
         Alert.alert('Error reading image', (error as Error).message);
+      } finally {
+        setIsTranslating(false);
       }
     };
 
@@ -101,35 +103,7 @@ export default function App() {
       readImage();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [image, targetLanguage]);
-
-  const translateAndSet = React.useCallback(
-    (text: string) => {
-      if (targetLanguage === 'en') {
-        setDetectedText(text);
-        return;
-      }
-      translate(text)
-        .then((translated) => setDetectedText(translated || text))
-        .catch(() => setDetectedText(text));
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [translate]
-  );
-
-  const frameOutput = useFrameOutput({
-    pixelFormat: 'rgb',
-    onFrame: (frame) => {
-      'worklet';
-      const scannedText = scanText(frame);
-      if (scannedText?.resultText) {
-        scheduleOnRN(translateAndSet, scannedText.resultText);
-      } else {
-        scheduleOnRN(setDetectedText, undefined);
-      }
-      frame.dispose();
-    },
-  });
+  }, [image, targetLanguage, sourceLanguage]);
 
   const pickImage = async () => {
     const permissionResult =
@@ -165,44 +139,79 @@ export default function App() {
     );
   }
 
+  const cameraOptions = React.useMemo(
+    () => ({
+      from: sourceLanguage,
+      to: targetLanguage,
+      ...(useCropRegion ? { scanRegion } : {}),
+    }),
+    [sourceLanguage, targetLanguage, useCropRegion]
+  );
+
   return (
     <View style={styles.container}>
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
         isActive
-        outputs={[frameOutput]}
+        mode="translate"
+        options={cameraOptions}
+        callback={(data: any) => {
+          if (typeof data === 'string') {
+            setDetectedText(data);
+          }
+        }}
       />
-      <View style={styles.scanRegion} />
+      {useCropRegion && <View style={styles.scanRegion} />}
 
-      {/* Language picker button */}
-      <Pressable
-        style={styles.leftButton}
-        onPress={() => setLangPickerVisible(true)}
-      >
-        <Text style={styles.buttonText}>🌐 Translate to: {selectedLabel}</Text>
-      </Pressable>
+      {/* Control Buttons Bar */}
+      <View style={styles.topControlBar}>
+        <Pressable
+          style={styles.controlBtn}
+          onPress={() => setLangPickerMode('source')}
+        >
+          <Text style={styles.buttonText}>From: {selectedSourceLabel}</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.controlBtn}
+          onPress={() => setLangPickerMode('target')}
+        >
+          <Text style={styles.buttonText}>To: {selectedTargetLabel}</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.controlBtn, useCropRegion && styles.controlBtnActive]}
+          onPress={() => setUseCropRegion(!useCropRegion)}
+        >
+          <Text style={styles.buttonText}>
+            {useCropRegion ? '🎯 Crop Box' : '🔍 Full Screen'}
+          </Text>
+        </Pressable>
+      </View>
 
       {/* Photo recognizer button */}
       <Pressable style={styles.rightButton} onPress={pickImage}>
-        <Text style={styles.buttonText}>📷 Photo Recognizer</Text>
+        <Text style={styles.buttonText}>📷 Photo OCR</Text>
       </Pressable>
 
       <View style={styles.overlay}>
-        <Text style={styles.title}>Detected text (→ {selectedLabel}):</Text>
-        <Text style={styles.line}>{detectedText}</Text>
+        <Text style={styles.title}>
+          Detected ({selectedSourceLabel} ➔ {selectedTargetLabel}):
+        </Text>
+        <Text style={styles.line}>{detectedText || 'Scanning text...'}</Text>
       </View>
 
       {/* Language selection modal */}
       <Modal
-        visible={langPickerVisible}
+        visible={langPickerMode !== null}
         animationType="slide"
         transparent
-        onRequestClose={() => setLangPickerVisible(false)}
+        onRequestClose={() => setLangPickerMode(null)}
       >
         <Pressable
           style={styles.langModalBackdrop}
-          onPress={() => setLangPickerVisible(false)}
+          onPress={() => setLangPickerMode(null)}
         >
           <View
             style={[
@@ -210,32 +219,42 @@ export default function App() {
               { paddingBottom: insets.bottom + 8 },
             ]}
           >
-            <Text style={styles.langModalTitle}>Select target language</Text>
+            <Text style={styles.langModalTitle}>
+              Select {langPickerMode === 'source' ? 'Source' : 'Target'} Language
+            </Text>
             <FlatList
               data={LANGUAGES}
               keyExtractor={(item) => item.value}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={[
-                    styles.langOption,
-                    item.value === targetLanguage && styles.langOptionSelected,
-                  ]}
-                  onPress={() => {
-                    setTargetLanguage(item.value);
-                    setLangPickerVisible(false);
-                  }}
-                >
-                  <Text
+              renderItem={({ item }) => {
+                const currentLang =
+                  langPickerMode === 'source' ? sourceLanguage : targetLanguage;
+                const isSelected = item.value === currentLang;
+                return (
+                  <Pressable
                     style={[
-                      styles.langOptionText,
-                      item.value === targetLanguage &&
-                        styles.langOptionTextSelected,
+                      styles.langOption,
+                      isSelected && styles.langOptionSelected,
                     ]}
+                    onPress={() => {
+                      if (langPickerMode === 'source') {
+                        setSourceLanguage(item.value);
+                      } else {
+                        setTargetLanguage(item.value);
+                      }
+                      setLangPickerMode(null);
+                    }}
                   >
-                    {item.label}
-                  </Text>
-                </Pressable>
-              )}
+                    <Text
+                      style={[
+                        styles.langOptionText,
+                        isSelected && styles.langOptionTextSelected,
+                      ]}
+                    >
+                      {item.label}
+                    </Text>
+                  </Pressable>
+                );
+              }}
             />
           </View>
         </Pressable>
@@ -253,7 +272,7 @@ export default function App() {
           )}
           <View style={styles.overlay}>
             <Text style={styles.title}>
-              Translated text from image (→ {selectedLabel}):
+              Translated text from image (→ {selectedTargetLabel}):
             </Text>
             <Text style={styles.line}>{imageText}</Text>
           </View>
@@ -293,12 +312,32 @@ const styles = StyleSheet.create({
   },
   rightButton: {
     position: 'absolute',
-    top: 56,
+    bottom: 120,
     right: 16,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 20,
+  },
+  topControlBar: {
+    position: 'absolute',
+    top: 50,
+    left: 12,
+    right: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 6,
+  },
+  controlBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  controlBtnActive: {
+    backgroundColor: 'rgba(255, 59, 48, 0.8)',
   },
   leftButton: {
     position: 'absolute',

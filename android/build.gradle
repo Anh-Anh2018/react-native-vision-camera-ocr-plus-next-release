@@ -28,23 +28,27 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply from: '../nitrogen/generated/android/NitroVisionCameraOcrPlus+autolinking.gradle'
 apply from: "./fix-prefab.gradle"
 
-def getExtOrDefault(name) {
-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["NitroVisionCameraOcrPlus_" + name]
+def getExtOrDefault(name, defaultValue = "") {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["NitroVisionCameraOcrPlus_" + name] ?: defaultValue)
 }
 
-def getExtOrIntegerDefault(name) {
-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["NitroVisionCameraOcrPlus_" + name]).toInteger()
+def getExtOrIntegerDefault(name, defaultValue = 35) {
+  if (rootProject.ext.has(name)) {
+    return rootProject.ext.get(name)
+  }
+  def prop = project.properties["NitroVisionCameraOcrPlus_" + name]
+  return prop != null ? prop.toInteger() : defaultValue
 }
 
 android {
   namespace "com.margelo.nitro.visioncameraocrplus"
 
-  ndkVersion getExtOrDefault("ndkVersion")
-  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+  compileSdk getExtOrIntegerDefault("compileSdkVersion", 35)
+  ndkVersion getExtOrDefault("ndkVersion", "27.1.12297006")
 
   defaultConfig {
-    minSdkVersion getExtOrIntegerDefault("minSdkVersion")
-    targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+    minSdkVersion getExtOrIntegerDefault("minSdkVersion", 26)
+    targetSdkVersion getExtOrIntegerDefault("targetSdkVersion", 35)
 
     externalNativeBuild {
       cmake {
