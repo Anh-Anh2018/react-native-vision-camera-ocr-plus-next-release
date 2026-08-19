@@ -27,10 +27,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const scanRegion = {
-  left: '25%',
-  top: '30%',
-  width: '50%',
-  height: '23%',
+  left: '10%',
+  top: '25%',
+  width: '80%',
+  height: '35%',
 } as ScanRegion;
 
 type LanguageOption = { label: string; value: Languages };
@@ -305,8 +305,9 @@ const styles = StyleSheet.create({
   scanRegion: {
     ...scanRegion,
     position: 'absolute',
-    borderWidth: 1,
-    borderColor: 'red',
+    borderWidth: 2,
+    borderColor: '#FF3B30',
+    borderRadius: 12,
   },
   overlay: {
     position: 'absolute',
