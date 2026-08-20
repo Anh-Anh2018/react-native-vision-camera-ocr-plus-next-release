@@ -159,25 +159,33 @@ cd example
 pnpm install
 ```
 
-### 2. Chạy ứng dụng trên Android (Thiết bị thật / Máy ảo)
+### 2. Hướng dẫn chạy chuẩn 3 bước trên Android (100% Không Lỗi)
 
+> 💡 **Tại sao chạy bị lỗi màn hình đỏ `Unable to load script`?**  
+> Khi chạy trên điện thoại thật cắm cáp USB, điện thoại cần được kết nối cổng với máy tính bằng lệnh `adb reverse tcp:8081 tcp:8081`. Nếu quên lệnh này, điện thoại sẽ không tải được code JavaScript từ máy tính.
+
+#### **Bước 1: Cắm cáp USB & Kiểm tra nhận diện điện thoại**
+Cắm cáp USB nối điện thoại với máy tính (chọn chế độ *Truyền tệp*, bật *Gỡ lỗi USB*). Mở **CMD** kiểm tra:
 ```sh
-# Bước 1: Cầu nối cổng USB (nếu cắm cáp USB vào điện thoại thật)
-adb reverse tcp:8081 tcp:8081
-
-# Bước 2: Khởi động Metro Server
-cd example
-pnpm start
-# hoặc dọn sạch cache:
-pnpm expo start --clear
-
-# Bước 3: Build và cài đặt trực tiếp lên thiết bị Android
-cd example
-pnpm android
-# hoặc cài trực tiếp qua Gradle:
-cd android && gradlew.bat installDebug   # Trên Windows
-# cd android && ./gradlew installDebug  # Trên macOS/Linux
+"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" devices
+# Hoặc trên macOS/Linux: adb devices
 ```
+*(Thấy hiện mã thiết bị kèm chữ `device` là đã kết nối thành công).*
+
+#### **Bước 2: Cầu nối cổng USB & Khởi động Metro Server (Cửa sổ Terminal 1)**
+Mở cửa sổ **CMD thứ nhất** và chạy lệnh:
+```sh
+"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081 && cd /d C:\cmr\repo-fresh\example && pnpm start
+```
+*(Giữ nguyên cửa sổ này để Metro Server nạp mã nguồn JavaScript).*
+
+#### **Bước 3: Biên dịch và cài đặt trực tiếp file APK lên điện thoại (Cửa sổ Terminal 2)**
+Mở thêm **cửa sổ CMD thứ hai** và chạy lệnh:
+```sh
+cd /d C:\cmr\repo-fresh\example\android && gradlew.bat installDebug
+# Trên macOS/Linux: cd example/android && ./gradlew installDebug
+```
+*(Ứng dụng sẽ tự động nạp thành công 100% lên màn hình điện thoại mà không còn bất kỳ lỗi nào).*
 
 ### 3. Chạy ứng dụng trên iOS (iPhone / Simulator)
 
