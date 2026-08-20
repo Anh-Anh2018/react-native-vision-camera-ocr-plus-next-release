@@ -1,10 +1,14 @@
 export type {
   Frame,
   CameraProps,
+  CameraViewProps,
   CameraDevice,
 } from 'react-native-vision-camera';
 export type { ForwardedRef } from 'react';
-import type { CameraProps, Frame } from 'react-native-vision-camera';
+import type {
+  CameraViewProps,
+  Frame,
+} from 'react-native-vision-camera';
 
 export type ReadonlyFrameProcessor = (frame: Frame) => void;
 
@@ -118,10 +122,10 @@ export type TranslatorOptions = {
 export type CameraTypes = {
   callback: (data: string | Text) => void;
   mode: 'translate' | 'recognize';
-} & CameraProps &
+} & CameraViewProps &
   (
-    | { mode: 'recognize'; options: TextRecognitionOptions }
-    | { mode: 'translate'; options: TranslatorOptions }
+    | { mode: 'recognize'; options?: TextRecognitionOptions }
+    | { mode: 'translate'; options?: TranslatorOptions }
   );
 
 export type ScanTextConfig = { scanRegion: ScanRegion };

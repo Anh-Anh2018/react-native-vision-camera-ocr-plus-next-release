@@ -4,7 +4,10 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Linking,
   Modal,
+  Platform,
+  PermissionsAndroid,
   Pressable,
   StyleSheet,
   Text,
@@ -75,9 +78,44 @@ export default function App() {
 
   const { translate } = useTranslate({ from: sourceLanguage, to: targetLanguage });
 
+  const handleRequestPermission = React.useCallback(async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Quyền sử dụng Camera',
+            message: 'Ứng dụng cần quyền Camera để quét chữ OCR và dịch thuật.',
+            buttonPositive: 'Cho phép',
+            buttonNegative: 'Hủy',
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          await requestPermission();
+          return;
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+    const res = await requestPermission();
+    if (!res) {
+      Alert.alert(
+        'Cần cấp quyền Camera',
+        'Vui lòng vào Cài đặt ứng dụng để bật quyền Camera.',
+        [
+          { text: 'Hủy', style: 'cancel' },
+          { text: 'Mở Cài đặt', onPress: () => Linking.openSettings() },
+        ]
+      );
+    }
+  }, [requestPermission]);
+
   React.useEffect(() => {
-    if (!hasPermission) requestPermission();
-  }, [hasPermission, requestPermission]);
+    if (!hasPermission) {
+      handleRequestPermission();
+    }
+  }, [hasPermission, handleRequestPermission]);
 
   React.useEffect(() => {
     const readImage = async () => {
@@ -130,16 +168,6 @@ export default function App() {
     }
   };
 
-  if (!device || !hasPermission) {
-    return (
-      <View style={styles.center}>
-        <Text>
-          {!device ? 'No camera device' : 'Requesting camera permission…'}
-        </Text>
-      </View>
-    );
-  }
-
   const cameraOptions = React.useMemo(
     () => ({
       language: 'latin',
@@ -149,6 +177,68 @@ export default function App() {
     }),
     [sourceLanguage, targetLanguage, useCropRegion]
   );
+
+  if (!hasPermission) {
+    return (
+      <View style={[styles.center, { backgroundColor: '#121212', padding: 24 }]}>
+        <Text style={{ fontSize: 52, marginBottom: 16 }}>📷</Text>
+        <Text
+          style={{
+            color: '#FFFFFF',
+            fontSize: 20,
+            fontWeight: '700',
+            textAlign: 'center',
+            marginBottom: 8,
+          }}
+        >
+          Cần cấp quyền Camera
+        </Text>
+        <Text
+          style={{
+            color: '#AAAAAA',
+            fontSize: 14,
+            textAlign: 'center',
+            marginBottom: 28,
+            lineHeight: 22,
+          }}
+        >
+          Ứng dụng cần quyền truy cập Camera để nhận diện chữ OCR On-Device và dịch thuật tức thì.
+        </Text>
+        <Pressable
+          style={{
+            backgroundColor: '#007AFF',
+            paddingHorizontal: 28,
+            paddingVertical: 14,
+            borderRadius: 24,
+            elevation: 3,
+          }}
+          onPress={handleRequestPermission}
+        >
+          <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>
+            Cho phép truy cập Camera
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (!device) {
+    return (
+      <View style={[styles.center, { backgroundColor: '#121212', padding: 24 }]}>
+        <Text style={{ fontSize: 52, marginBottom: 16 }}>🔍</Text>
+        <Text
+          style={{
+            color: '#FFFFFF',
+            fontSize: 18,
+            fontWeight: '600',
+            textAlign: 'center',
+          }}
+        >
+          Đang khởi tạo Camera...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -288,7 +378,11 @@ export default function App() {
             <Text style={styles.title}>
               Translated text from image (→ {selectedTargetLabel}):
             </Text>
-            <Text style={styles.line}>{imageText}</Text>
+            <Text style={styles.line}>
+              {isTranslating
+                ? 'Translating text...'
+                : imageText || 'No text recognized'}
+            </Text>
           </View>
           <Pressable style={styles.rightButton} onPress={() => setImage(null)}>
             <Text style={styles.buttonText}>Close</Text>

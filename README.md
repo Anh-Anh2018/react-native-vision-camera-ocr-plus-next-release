@@ -69,122 +69,168 @@ yarn add react-native-vision-camera-ocr-plus react-native-nitro-modules react-na
 
 ---
 
-## 📱 HƯỚNG DẪN CHẠY TRÊN ANDROID (Chi Tiết 100% Không Lỗi)
+## 🚀 HƯỚNG DẪN CHẠY BẰNG PNPM (ĐẦY ĐỦ CẢ 2 HỆ ĐIỀU HÀNH)
 
-> 💡 **Lưu ý quan trọng**: Khi cắm cáp USB vào điện thoại thật, bạn bắt buộc phải chạy lệnh cầu nối `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro Server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
-
-### Cách 1: Chạy bằng lệnh Expo CLI (`pnpm` / `npx`)
-
-#### **Bước 1: Kết nối điện thoại và cầu nối cổng USB**
-Cắm cáp USB (bật *Gỡ lỗi USB* và chọn *Truyền tệp*). Mở CMD chạy:
-```cmd
-"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
-```
-
-#### **Bước 2: Khởi động Metro Server (Cửa sổ CMD 1)**
-```cmd
-cd example
-pnpm start
-# Hoặc: npx expo start --clear
-```
-
-#### **Bước 3: Biên dịch và chạy app (Cửa sổ CMD 2)**
-```cmd
-cd example
-pnpm run android
-# Hoặc: npx expo run:android
-```
+Dự án hỗ trợ hoàn toàn việc quản lý gói bằng **`pnpm`** trên cả **Android** (Windows & macOS/Linux) và **iOS** (macOS).
 
 ---
 
-### Cách 2: Chạy trực tiếp bằng Gradle (`gradlew installDebug`)
+### 📱 1. HƯỚNG DẪN CHẠY TRÊN ANDROID
 
-Nếu bạn muốn nạp file APK thẳng vào máy nhanh nhất mà không qua Expo CLI:
-
-```cmd
-# Cửa sổ 1: Cầu nối USB & Bật Metro Server
-"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081 & cd /d C:\cmr\repo-fresh\example & pnpm start
-
-# Cửa sổ 2: Build & Cài đặt APK
-cd /d C:\cmr\repo-fresh\example\android & gradlew.bat installDebug
-```
+> [!IMPORTANT]
+> ### 🔌 BẮT BUỘC: LỆNH KẾT NỐI CỔNG 8081 (CẢ 2 HỆ ĐIỀU HÀNH)
+> Khi cắm cáp USB vào điện thoại thật, bạn **bắt buộc phải chạy lệnh cầu nối cổng `8081`** để ứng dụng trên điện thoại có thể tải JavaScript Bundle từ máy tính qua cáp USB (tránh 100% lỗi đỏ màn hình `Could not connect to development server` hoặc `localhost:8081`).
+>
+> #### 🪟 Trên WINDOWS (PowerShell hoặc CMD):
+> ```powershell
+> # Cách 1: PowerShell (Khuyên dùng)
+> & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" devices
+> & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+>
+> # Cách 2: Command Prompt (CMD)
+> %LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe devices
+> %LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe reverse tcp:8081 tcp:8081
+>
+> # Cách 3: Nếu đã cấu hình biến môi trường PATH
+> adb devices
+> adb reverse tcp:8081 tcp:8081
+> ```
+>
+> #### 🍎 Trên macOS / LINUX (Terminal / Zsh / Bash):
+> ```sh
+> # Kiểm tra nhận diện điện thoại
+> adb devices
+>
+> # Cầu nối cổng 8081 qua cáp USB
+> adb reverse tcp:8081 tcp:8081
+>
+> # (Nếu chưa set PATH thì dùng đường dẫn mặc định trên Mac)
+> ~/Library/Android/sdk/platform-tools/adb devices
+> ~/Library/Android/sdk/platform-tools/adb reverse tcp:8081 tcp:8081
+> ```
 
 ---
 
-## 🍏 HƯỚNG DẪN CHẠY TRÊN iOS (iPhone / iPad / macOS)
-
-> ⚠️ **Yêu cầu môi trường iOS**: Cần sử dụng máy tính **macOS** có cài đặt **Xcode** (từ App Store) và **CocoaPods**.
-
-### 1. Cài đặt Pods cho iOS
+#### **Bước 1: Cài đặt dependencies bằng pnpm**
+Mở terminal tại thư mục gốc của dự án:
 ```sh
-cd example
+# Cài đặt thư viện gốc
 pnpm install
 
-cd ios
+# Cài đặt dependencies cho app example
+cd example
+pnpm install
+```
+
+#### **Bước 2: Cắm cáp USB & Chạy lệnh cầu nối cổng 8081**
+1. Cắm cáp USB từ điện thoại vào máy tính (bật **Tùy chọn nhà phát triển ➔ Gỡ lỗi USB ➔ Chọn chế độ Truyền tệp / MTP**).
+2. Chạy lệnh cầu nối `adb reverse tcp:8081 tcp:8081` tương ứng với hệ điều hành của bạn (xem khung chú thích quan trọng ở trên).
+
+#### **Bước 3: Khởi động Metro Bundler (Terminal 1)**
+Tại thư mục `example`:
+```sh
+cd example
+pnpm start
+# Hoặc: pnpm expo start --clear
+```
+
+#### **Bước 4: Build và cài đặt Native APK vào điện thoại (Terminal 2)**
+Mở một cửa sổ terminal mới và chạy:
+```sh
+cd example
+pnpm android
+# Hoặc: pnpm run android
+```
+
+*(Tùy chọn) Nếu muốn build và cài đặt trực tiếp bằng Gradle:*
+- **Trên Windows:**
+  ```cmd
+  cd example\android
+  gradlew.bat installDebug
+  ```
+- **Trên macOS / Linux:**
+  ```sh
+  cd example/android
+  ./gradlew installDebug
+  ```
+
+---
+
+### 🍏 2. HƯỚNG DẪN CHẠY TRÊN iOS (iPhone / iPad / Simulator)
+
+> ⚠️ **Yêu cầu môi trường iOS**: Cần sử dụng máy tính **macOS** có cài đặt **Xcode** (từ Mac App Store) và **CocoaPods** (`sudo gem install cocoapods`).
+
+#### **Bước 1: Cài đặt dependencies bằng pnpm**
+```sh
+# Tại thư mục gốc
+pnpm install
+
+# Tại thư mục example
+cd example
+pnpm install
+```
+
+#### **Bước 2: Cài đặt CocoaPods cho iOS**
+```sh
+cd example/ios
 pod install
 cd ..
 ```
 
-### 2. Chạy trên iPhone thật (Physical Device)
-1. Cắm cáp kết nối iPhone với máy Mac (chọn *Tin cậy máy tính này*).
-2. Chạy lệnh:
+#### **Bước 3: Khởi động Metro Bundler (Terminal 1)**
 ```sh
 cd example
-pnpm run ios --device
-# Hoặc: npx expo run:ios --device
+pnpm start
 ```
 
-### 3. Chạy trên iOS Simulator (Máy ảo Mac)
-```sh
-cd example
-pnpm ios
-# Hoặc: npx expo run:ios
-```
+#### **Bước 4: Chạy ứng dụng (Terminal 2)**
 
-> ⚠️ **Lưu ý với chip Apple Silicon (M1/M2/M3/M4)**: Google ML Kit chạy mượt 100% trên thiết bị iPhone thật. Nếu chạy trên Simulator, hãy chạy Simulator dưới chế độ Rosetta.
+- **Chạy trên iPhone thật qua cáp USB (Physical Device):**
+  1. Cắm cáp kết nối iPhone với máy Mac (chọn *Tin cậy máy tính này*).
+  2. Chạy lệnh:
+  ```sh
+  cd example
+  pnpm run ios --device
+  ```
+
+- **Chạy trên máy ảo iOS Simulator:**
+  ```sh
+  cd example
+  pnpm ios
+  ```
 
 ---
 
-## 🛠️ Cấu hình Expo (`app.json`)
+## 📊 Bảng tổng hợp tất cả các lệnh `pnpm` thông dụng
 
-Vì thư viện sử dụng mã nguồn Native C++ (Nitro Modules), ứng dụng **cần dùng Expo Prebuild / Dev Client** thay vì Expo Go tiêu chuẩn.
-
-Thêm cấu hình quyền truy cập Camera vào `app.json`:
-
-```json
-{
-  "expo": {
-    "name": "Vision OCR Plus",
-    "slug": "vision-ocr-plus",
-    "plugins": [
-      [
-        "react-native-vision-camera",
-        {
-          "cameraPermissionText": "$(PRODUCT_NAME) cần quyền truy cập Camera để nhận diện và dịch văn bản."
-        }
-      ]
-    ]
-  }
-}
-```
+| Lệnh | Vị trí thư mục | Mô tả chức năng | Hệ điều hành |
+|---|---|---|---|
+| `pnpm install` | Thư mục gốc (`/`) | Cài đặt toàn bộ dependencies của thư viện | Windows / macOS |
+| `pnpm typecheck` | Thư mục gốc (`/`) | Kiểm tra lỗi TypeScript toàn bộ dự án | Windows / macOS |
+| `pnpm prepare` / `pnpm build` | Thư mục gốc (`/`) | Biên dịch bundle thư viện bằng react-native-builder-bob | Windows / macOS |
+| `pnpm install` | `example/` | Cài đặt dependencies cho app test | Windows / macOS |
+| `pnpm start` | `example/` | Khởi động Metro Bundler Server | Windows / macOS |
+| `pnpm android` | `example/` | Biên dịch và cài đặt APK lên thiết bị Android | Windows / macOS |
+| `pnpm ios` | `example/` | Biên dịch và chạy trên iOS Simulator | macOS |
+| `pnpm run ios --device` | `example/` | Biên dịch và chạy trực tiếp trên iPhone thật | macOS |
+| `pnpm run clean:android` | `example/` | Xóa cache Android và prebuild lại | Windows / macOS |
+| `pnpm run clean:ios` | `example/` | Xóa thư mục `ios` và prebuild lại pods | macOS |
 
 ---
 
-## 🚀 Đóng gói cài đặt từ xa qua EAS Build (Không cần cáp)
+## 🔧 Xử lý nhanh các vấn đề thường gặp (Troubleshooting)
 
-Bạn có thể đóng gói file **APK** (Android) hoặc **IPA** (iOS) qua đám mây của Expo:
+1. **Lỗi `Could not connect to development server` / `localhost:8081` trên Android:**
+   - Đảm bảo terminal đang chạy `pnpm start`.
+   - Chạy lại lệnh cầu nối cổng: `adb reverse tcp:8081 tcp:8081`.
+   - Hoặc lắc điện thoại ➔ chọn **Settings / Change Bundle Location** ➔ nhập `<IP_WIFI_MÁY_TÍNH>:8081`.
 
-```sh
-# 1. Đăng nhập Expo EAS
-npm install -g eas-cli
-eas login
+2. **Lỗi chưa cấp quyền Camera:**
+   - Ứng dụng sẽ hiển thị nút **"Cho phép truy cập Camera"**, bấm vào để chấp thuận quyền.
+   - Hoặc vào **Cài đặt điện thoại ➔ Ứng dụng ➔ RNVC OCR+ ➔ Quyền ➔ Bật Máy ảnh**.
 
-# 2. Build APK Android cài trực tiếp:
-eas build -p android --profile preview
-
-# 3. Build IPA cho iOS:
-eas build -p ios --profile preview
-```
+3. **Lỗi đường dẫn dài trên Windows khi build CMake / Ninja:**
+   - Thêm file `.npmrc` với nội dung `shamefully-hoist=true` hoặc sử dụng `yarn` trong thư mục `example` để làm phẳng cấu trúc `node_modules`.
 
 ---
 
@@ -263,42 +309,7 @@ const styles = StyleSheet.create({
 />
 ```
 
-### 3. Nhận diện văn bản từ ảnh tĩnh (`PhotoRecognizer`)
-
-```tsx
-import { PhotoRecognizer } from 'react-native-vision-camera-ocr-plus';
-
-const result = await PhotoRecognizer({
-  uri: 'file:///path/to/image.jpg',
-  orientation: 'portrait',
-});
-console.log('Image Text:', result.resultText);
-```
-
----
-
-## 📊 Bảng tổng hợp các lệnh thông dụng (`pnpm`)
-
-| Lệnh | Mục đích |
-|---|---|
-| `pnpm install` | Cài đặt dependencies toàn bộ dự án |
-| `cd example && pnpm start` | Khởi động Metro Bundler Server |
-  return (
-    <Camera
-      style={{ flex: 1 }}
-      device={device}
-      isActive
-      mode="translate"
-      options={{ from: 'fr', to: 'en' }}
-      callback={(data) => console.log(data as string)}
-    />
-  )
-}
-```
-
-### Hooks — build your own frame processor
-
-Use `useTextRecognition` or `useTranslate` to integrate the plugins into a custom frame processor.
+### 3. Tự tạo Custom Frame Processor (Hooks)
 
 #### `useTextRecognition`
 
