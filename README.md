@@ -81,6 +81,65 @@ No additional steps — the library is auto-linked.
 
 ---
 
+## 🚀 Development & Run Commands (`pnpm`)
+
+### 1. Cài đặt Dependencies
+
+```sh
+# Cài đặt dependencies tại thư mục gốc
+pnpm install
+
+# Cài đặt dependencies trong thư mục example
+cd example
+pnpm install
+```
+
+### 2. Chạy ứng dụng trên Android (Thiết bị thật / Máy ảo)
+
+```sh
+# Bước 1: Cầu nối cổng USB (nếu cắm cáp USB vào điện thoại thật)
+adb reverse tcp:8081 tcp:8081
+
+# Bước 2: Khởi động Metro Server
+cd example
+pnpm start
+# hoặc dọn sạch cache:
+pnpm expo start --clear
+
+# Bước 3: Build và cài đặt trực tiếp lên thiết bị Android
+cd example
+pnpm android
+# hoặc cài trực tiếp qua Gradle:
+cd android && gradlew.bat installDebug   # Trên Windows
+# cd android && ./gradlew installDebug  # Trên macOS/Linux
+```
+
+### 3. Chạy ứng dụng trên iOS (iPhone / Simulator)
+
+```sh
+# Bước 1: Cài đặt CocoaPods
+cd example/ios
+pod install
+cd ..
+
+# Bước 2: Chạy ứng dụng trên iPhone
+pnpm ios
+# hoặc chạy trực tiếp trên thiết bị cắm dây:
+pnpm run ios --device
+```
+
+### 4. Bảng tổng hợp các lệnh (`pnpm`)
+
+| Lệnh `pnpm` | Mô tả tác vụ |
+|---|---|
+| `cd example && pnpm start` | Khởi động Metro Bundler Server |
+| `cd example && pnpm android` | Build & nạp ứng dụng lên Android |
+| `cd example && pnpm ios` | Build & nạp ứng dụng lên iOS (iPhone) |
+| `pnpm lint` | Kiểm tra code formatting & linter |
+| `pnpm typecheck` | Kiểm tra kiểu dữ liệu TypeScript |
+
+---
+
 ## Usage
 
 👉 See the [example app](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/tree/main/example) for a working demo.
