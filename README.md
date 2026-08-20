@@ -81,6 +81,71 @@ No additional steps — the library is auto-linked.
 
 ---
 
+## 📱 Expo Integration & Usage Guide
+
+> [!IMPORTANT]
+> **Expo Go không hỗ trợ Native C++ Modules**: Do thư viện sử dụng Nitro Modules và Google ML Kit (Native C++ / Swift / Kotlin), bạn **bắt buộc phải sử dụng Expo Prebuild / Expo Dev Client** (`npx expo run:android` hoặc `npx expo run:ios`) thay vì ứng dụng Expo Go tiêu chuẩn.
+
+### 1. Cấu hình quyền Camera trong `app.json`
+
+Thêm plugin `react-native-vision-camera` vào file `app.json` của bạn:
+
+```json
+{
+  "expo": {
+    "name": "My OCR App",
+    "slug": "my-ocr-app",
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) cần quyền truy cập Camera để quét và nhận diện văn bản."
+        }
+      ]
+    ]
+  }
+}
+```
+
+### 2. Khởi tạo mã nguồn Native (`Expo Prebuild`)
+
+```sh
+# Tự động tạo thư mục android/ và ios/ với đầy đủ cấu hình Native
+npx expo prebuild
+```
+
+### 3. Chạy ứng dụng bằng Expo CLI
+
+```sh
+# Chạy trên Android (cắm cáp hoặc máy ảo)
+npx expo run:android
+
+# Chạy trên iOS (iPhone hoặc Simulator - yêu cầu macOS)
+npx expo run:ios
+
+# Khởi động Metro Bundler với Dev Client
+npx expo start --dev-client --clear
+```
+
+### 4. Đóng gói file cài đặt (APK / IPA) qua EAS Build
+
+```sh
+# Cài đặt EAS CLI (nếu chưa có)
+npm install -g eas-cli
+eas login
+
+# Khởi tạo cấu hình EAS Build
+eas build:configure
+
+# Build file APK Android độc lập (cài trực tiếp không cần máy tính)
+eas build -p android --profile preview
+
+# Build file IPA cho iOS
+eas build -p ios --profile preview
+```
+
+---
+
 ## 🚀 Development & Run Commands (`pnpm`)
 
 ### 1. Cài đặt Dependencies
