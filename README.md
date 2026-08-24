@@ -69,53 +69,93 @@ yarn add react-native-vision-camera-ocr-plus react-native-nitro-modules react-na
 
 ---
 
-## 📱 HƯỚNG DẪN CHẠY TRÊN ANDROID (Chi Tiết 100% Không Lỗi)
+## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN EXAMPLE (Cross-Platform / Mọi Hệ Điều Hành)
 
-> 💡 **Lưu ý quan trọng**: Khi cắm cáp USB vào điện thoại thật, bạn bắt buộc phải chạy lệnh cầu nối `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro Server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
+### 1. Cài đặt dependencies và build thư viện
 
-### Cách 1: Chạy bằng lệnh Expo CLI (`pnpm` / `npx`)
+Chạy tại thư mục gốc của repository:
 
-#### **Bước 1: Kết nối điện thoại và cầu nối cổng USB**
-Cắm cáp USB (bật *Gỡ lỗi USB* và chọn *Truyền tệp*). Mở CMD chạy:
-```cmd
-"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+```sh
+# Dùng pnpm (Khuyên dùng)
+pnpm install
+pnpm prepare
+
+# Hoặc dùng yarn
+yarn install
+yarn prepare
+
+# Hoặc dùng npm
+npm install
+npm run prepare
 ```
 
-#### **Bước 2: Khởi động Metro Server (Cửa sổ CMD 1)**
-```cmd
+---
+
+### 2. Xử lý giải phóng cổng Metro (Port 8081) nếu bị chiếm
+
+Nếu cổng `8081` đang bị tiến trình khác chiếm giữ, hãy chạy lệnh tương ứng với hệ điều hành:
+
+#### **Trên Windows (PowerShell / Command Prompt):**
+```powershell
+# Cách 1: Tự động kill port nhanh (áp dụng mọi máy)
+npx kill-port 8081
+
+# Cách 2: Bằng lệnh PowerShell gốc
+Get-Process -Id (Get-NetTCPConnection -LocalPort 8081 -ErrorAction SilentlyContinue).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force
+```
+
+#### **Trên macOS / Linux (Terminal):**
+```sh
+# Cách 1: Tự động kill port nhanh
+npx kill-port 8081
+
+# Cách 2: Bằng lệnh Unix gốc
+lsof -ti:8081 | xargs kill -9
+```
+
+---
+
+### 3. Hướng dẫn chạy trên ANDROID
+
+> 💡 **Lưu ý quan trọng**: Khi cắm điện thoại Android vào máy tính qua cáp USB, hãy bật **Gỡ lỗi USB (USB Debugging)** và chạy lệnh `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
+
+#### **Bước 1: Cầu nối cổng Metro qua ADB**
+```sh
+adb reverse tcp:8081 tcp:8081
+```
+
+#### **Bước 2: Khởi động Metro Server (Terminal 1)**
+```sh
 cd example
-pnpm start
+pnpm start --clear
+# Hoặc: yarn start --clear
 # Hoặc: npx expo start --clear
 ```
 
-#### **Bước 3: Biên dịch và chạy app (Cửa sổ CMD 2)**
-```cmd
+#### **Bước 3: Biên dịch và chạy ứng dụng (Terminal 2)**
+```sh
 cd example
 pnpm run android
+# Hoặc: yarn android
 # Hoặc: npx expo run:android
 ```
 
----
+#### **Cách chạy trực tiếp bằng Gradle (Tùy chọn):**
+```sh
+# Trên Windows:
+cd example/android && gradlew.bat installDebug
 
-### Cách 2: Chạy trực tiếp bằng Gradle (`gradlew installDebug`)
-
-Nếu bạn muốn nạp file APK thẳng vào máy nhanh nhất mà không qua Expo CLI:
-
-```cmd
-# Cửa sổ 1: Cầu nối USB & Bật Metro Server
-"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081 & cd /d C:\cmr\repo-fresh\example & pnpm start
-
-# Cửa sổ 2: Build & Cài đặt APK
-cd /d C:\cmr\repo-fresh\example\android & gradlew.bat installDebug
+# Trên macOS / Linux:
+cd example/android && ./gradlew installDebug
 ```
 
 ---
 
-## 🍏 HƯỚNG DẪN CHẠY TRÊN iOS (iPhone / iPad / macOS)
+### 4. Hướng dẫn chạy trên iOS (iPhone / iPad / macOS)
 
-> ⚠️ **Yêu cầu môi trường iOS**: Cần sử dụng máy tính **macOS** có cài đặt **Xcode** (từ App Store) và **CocoaPods**.
+> ⚠️ **Yêu cầu**: Cần sử dụng máy tính **macOS** có cài đặt **Xcode** và **CocoaPods**.
 
-### 1. Cài đặt Pods cho iOS
+#### **Bước 1: Cài đặt Pods**
 ```sh
 cd example
 pnpm install
@@ -125,31 +165,29 @@ pod install
 cd ..
 ```
 
-### 2. Chạy trên iPhone thật (Physical Device)
+#### **Bước 2: Chạy trên thiết bị thật (iPhone / iPad)**
 1. Cắm cáp kết nối iPhone với máy Mac (chọn *Tin cậy máy tính này*).
 2. Chạy lệnh:
 ```sh
 cd example
 pnpm run ios --device
+# Hoặc: yarn ios --device
 # Hoặc: npx expo run:ios --device
 ```
 
-### 3. Chạy trên iOS Simulator (Máy ảo Mac)
+#### **Bước 3: Chạy trên iOS Simulator (Máy ảo Mac)**
 ```sh
 cd example
-pnpm ios
+pnpm run ios
+# Hoặc: yarn ios
 # Hoặc: npx expo run:ios
 ```
-
-> ⚠️ **Lưu ý với chip Apple Silicon (M1/M2/M3/M4)**: Google ML Kit chạy mượt 100% trên thiết bị iPhone thật. Nếu chạy trên Simulator, hãy chạy Simulator dưới chế độ Rosetta.
 
 ---
 
 ## 🛠️ Cấu hình Expo (`app.json`)
 
-Vì thư viện sử dụng mã nguồn Native C++ (Nitro Modules), ứng dụng **cần dùng Expo Prebuild / Dev Client** thay vì Expo Go tiêu chuẩn.
-
-Thêm cấu hình quyền truy cập Camera vào `app.json`:
+Do thư viện sử dụng các module C++ Native (Nitro Modules), ứng dụng cần cấu hình quyền truy cập Camera trong `app.json`:
 
 ```json
 {
@@ -160,7 +198,7 @@ Thêm cấu hình quyền truy cập Camera vào `app.json`:
       [
         "react-native-vision-camera",
         {
-          "cameraPermissionText": "$(PRODUCT_NAME) cần quyền truy cập Camera để nhận diện và dịch văn bản."
+          "cameraPermissionText": "$(PRODUCT_NAME) cần quyền truy cập Camera để nhận diện và dịch văn bản trực tiếp."
         }
       ]
     ]
@@ -170,7 +208,7 @@ Thêm cấu hình quyền truy cập Camera vào `app.json`:
 
 ---
 
-## 🚀 Đóng gói cài đặt từ xa qua EAS Build (Không cần cáp)
+## ☁️ Đóng gói cài đặt từ xa qua EAS Build (Không cần cáp)
 
 Bạn có thể đóng gói file **APK** (Android) hoặc **IPA** (iOS) qua đám mây của Expo:
 
@@ -277,28 +315,9 @@ console.log('Image Text:', result.resultText);
 
 ---
 
-## 📊 Bảng tổng hợp các lệnh thông dụng (`pnpm`)
+### 4. Custom Hooks — Xây dựng Frame Processor riêng
 
-| Lệnh | Mục đích |
-|---|---|
-| `pnpm install` | Cài đặt dependencies toàn bộ dự án |
-| `cd example && pnpm start` | Khởi động Metro Bundler Server |
-  return (
-    <Camera
-      style={{ flex: 1 }}
-      device={device}
-      isActive
-      mode="translate"
-      options={{ from: 'fr', to: 'en' }}
-      callback={(data) => console.log(data as string)}
-    />
-  )
-}
-```
-
-### Hooks — build your own frame processor
-
-Use `useTextRecognition` or `useTranslate` to integrate the plugins into a custom frame processor.
+Bạn có thể sử dụng `useTextRecognition` hoặc `useTranslate` để tích hợp vào Frame Processor tùy chỉnh:
 
 #### `useTextRecognition`
 
@@ -547,10 +566,26 @@ src/
 nitro.json         Nitrogen config — registers HybridTextRecognizer & HybridTranslator
 ```
 
-## 🧠 Contributing
+---
 
-Contributions, feature requests, and bug reports are always welcome!  
-Please open an [issue](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/issues) or [pull request](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/pulls).
+## 📊 Bảng tổng hợp các lệnh CLI (`pnpm` / `yarn` / `npm`)
+
+| Tác vụ | pnpm | yarn | npm |
+|---|---|---|---|
+| **Cài đặt toàn bộ** | `pnpm install` | `yarn install` | `npm install` |
+| **Build thư viện** | `pnpm prepare` | `yarn prepare` | `npm run prepare` |
+| **Kill Port 8081** | `npx kill-port 8081` | `npx kill-port 8081` | `npx kill-port 8081` |
+| **Chạy Metro** | `cd example && pnpm start` | `cd example && yarn start` | `cd example && npm start` |
+| **Chạy Android** | `cd example && pnpm run android` | `cd example && yarn android` | `cd example && npm run android` |
+| **Chạy iOS** | `cd example && pnpm run ios --device` | `cd example && yarn ios --device` | `cd example && npm run ios --device` |
+
+---
+
+## 🧠 Đóng góp & Báo lỗi (Contributing)
+
+Mọi đóng góp, báo cáo lỗi (issues) và pull request đều được hoan nghênh:
+- Báo lỗi: [GitHub Issues](https://github.com/APPMKTVN/react-native-vision-camera-text-recognition/issues)
+- Tạo yêu cầu: [GitHub Pull Requests](https://github.com/APPMKTVN/react-native-vision-camera-text-recognition/pulls)
 
 ---
 
