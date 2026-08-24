@@ -86,26 +86,34 @@ export const Camera = forwardRef(function Camera(
     const translationState = {
       inFlight: false,
       lastRequestedText: '',
+      lastFromLang: '',
+      lastToLang: '',
       requestId: 0,
     };
 
     return (text: string) => {
-      if (!text) return;
+      if (!text || !text.trim()) return;
+      const langChanged =
+        translationState.lastFromLang !== fromLang ||
+        translationState.lastToLang !== toLang;
+
       if (
         translationState.inFlight ||
-        text === translationState.lastRequestedText
-      )
+        (!langChanged && text === translationState.lastRequestedText)
+      ) {
         return;
+      }
 
       translationState.inFlight = true;
       translationState.lastRequestedText = text;
+      translationState.lastFromLang = fromLang;
+      translationState.lastToLang = toLang;
       const requestId = ++translationState.requestId;
 
       (translator as any)
         .translate(text, fromLang, toLang)
         .then((translated: string) => {
           if (requestId === translationState.requestId) {
-            translationState.lastRequestedText = text;
             callback(translated);
           }
         })

@@ -2,133 +2,287 @@
 
 [![CI Status](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/react-native-vision-camera-ocr-plus.svg)](https://www.npmjs.com/package/react-native-vision-camera-ocr-plus)
+[![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS%20%7C%20visionOS-blue.svg)](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus)
 
 <table>
 <tr style="border: 0;">
 <td valign="top" style="border: 0;">
 
-On-device OCR and text translation for React Native, powered by [VisionCamera](https://github.com/mrousavy/react-native-vision-camera) and [Nitro Modules](https://github.com/mrousavy/nitro). Uses Google ML Kit under the hood for both text recognition and on-device translation.
+**On-device OCR and real-time text translation** for React Native & Expo, powered by [VisionCamera](https://github.com/mrousavy/react-native-vision-camera) and [Nitro Modules](https://github.com/mrousavy/nitro). Uses Google ML Kit under the hood for ultra-fast, 100% offline on-device text recognition and translation.
 
-### Features
+### 🌟 Key Features
 
-- **Live OCR** — read text from every camera frame via a VisionCamera frame processor
-- **Live translation** — recognize and translate camera frame text in real time
-- **Photo OCR** — recognize text asynchronously from a still image URI
-- **Model management** — remove downloaded translation language models to free storage
-- Supports Latin, Chinese, Devanagari, Japanese, and Korean scripts
-- Optional scan-region cropping to focus recognition on a sub-area of the frame
-- Configurable frame skipping for performance tuning
+- 📷 **Live OCR** — Recognize text continuously from camera frames with zero memory leaks.
+- 🔤 **Live Translation** — Real-time on-device translation (e.g. Vietnamese ➔ English, English ➔ Vietnamese).
+- 🖼️ **Photo OCR** — Asynchronous text extraction from static image URIs.
+- 🎯 **Scan-Region Cropping** — Customizable crop box (e.g. `80% x 35%`) to focus recognition.
+- 🌐 **100% On-Device & Offline** — Free forever, no Google Cloud API keys or recurring fees required.
+- 🚀 **Cross-Platform** — Full native support for **Android** (SDK 26–36) and **iOS** (iPhone / iPad / visionOS).
 
 </td>
 <td valign="top" style="border: 0;">
-  <img src="demo.gif" width="360" />
+  <img src="demo.gif" width="360" alt="Demo GIF" />
 </td>
 </tr>
 </table>
 
-## Requirements
+---
 
-| Requirement | Minimum version |
-|---|---|
-| React Native | 0.81 |
-| iOS | 15.1 |
-| Android Minimum SDK | 26 |
-| Android Target SDK | 36 |
-| react-native-vision-camera | 5.0.0 |
-| react-native-worklets | 0.8.x |
-| Expo (if used) | 54 |
+## 📋 Requirements
 
-## Migration from v1.x
-
-Upgrading from v1? See the **[Migration Guide](MIGRATION.md)** for a full list of breaking changes and step-by-step instructions.
-
-## Installation
-
-```sh
-npm install react-native-vision-camera-ocr-plus react-native-nitro-modules react-native-vision-camera-worklets react-native-worklets
-```
-
-### Peer dependencies
-
-| Package | Version |
-|---|---|
-| `react-native-vision-camera` | `>=5.0.0` |
-| `react-native-nitro-modules` | `*` |
-| `react-native-vision-camera-worklets` | `*` |
-| `react-native-worklets` | `>=0.8.0` |
-
-### 🔥 Firebase Compatibility
-If you have Firebase in your project, you will need to set your iOS Deployment Target to at least 16.0.
-
-### ⚠️ iOS Simulator (Apple Silicon) – Heads-up
-
-On Apple Silicon Macs, building for the **iOS Simulator (arm64)** may fail after installing this package.
-
-This is a **known limitation of Google ML Kit**, which does not currently ship an `arm64-simulator` slice for some iOS frameworks.  
-The library works correctly on **physical iOS devices** and on the **iOS Simulator when running under Rosetta**.
-
-👉 [Full context and discussion](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/issues/91#issuecomment-3768407842)
-
-### iOS
-
-```sh
-cd ios && pod install
-```
-
-### Android
-
-No additional steps — the library is auto-linked.
+| Requirement | Minimum Version | Notes |
+|---|---|---|
+| **Node.js** | `>= 18.0.0` | Recommended LTS |
+| **Package Manager** | `pnpm` / `yarn` / `npm` | `pnpm` recommended |
+| **React Native** | `>= 0.81.0` | New Architecture & Nitro ready |
+| **Expo SDK** | `>= 54.0.0` | Requires Prebuild / Dev Client |
+| **Android SDK** | `minSdkVersion 26`, `compileSdk 35+` | NDK `27.x` |
+| **iOS / macOS** | `iOS >= 15.1` (or `16.0+` with Firebase) | Xcode `>= 15.0`, CocoaPods |
 
 ---
 
-## Usage
+## 📦 Installation
 
-👉 See the [example app](https://github.com/jamenamcinteer/react-native-vision-camera-ocr-plus/tree/main/example) for a working demo.
+```sh
+# Using pnpm (Recommended)
+pnpm add react-native-vision-camera-ocr-plus react-native-nitro-modules react-native-vision-camera-worklets react-native-worklets
 
-### `<Camera />` — live OCR
+# Using npm
+npm install react-native-vision-camera-ocr-plus react-native-nitro-modules react-native-vision-camera-worklets react-native-worklets
 
-A drop-in replacement for VisionCamera's `<Camera>` that automatically runs OCR on every frame and fires `callback` with the recognized text.
+# Using yarn
+yarn add react-native-vision-camera-ocr-plus react-native-nitro-modules react-native-vision-camera-worklets react-native-worklets
+```
 
-```tsx
-import { Camera, type Text } from 'react-native-vision-camera-ocr-plus'
-import { useCameraDevice } from 'react-native-vision-camera'
+### Peer Dependencies
 
-export default function App() {
-  const device = useCameraDevice('back')
-
-  return (
-    <Camera
-      style={{ flex: 1 }}
-      device={device}
-      isActive
-      mode="recognize"
-      options={{
-        language: 'latin',         // 'latin' | 'chinese' | 'devanagari' | 'japanese' | 'korean'
-        frameSkipThreshold: 10,    // process every Nth frame (default: 10)
-        useLightweightMode: false, // Android only — skip corner points, languages, element data
-        // scanRegion: { left: '10%', top: '20%', width: '80%', height: '30%' },
-      }}
-      callback={(data) => {
-        const text = data as Text
-        console.log(text.resultText)
-        console.log(text.blocks) // TextBlock[]
-      }}
-    />
-  )
+```json
+{
+  "peerDependencies": {
+    "react-native-vision-camera": ">=5.0.0",
+    "react-native-nitro-modules": "*",
+    "react-native-vision-camera-worklets": "*",
+    "react-native-worklets": ">=0.8.0"
+  }
 }
 ```
 
-### `<Camera />` — live translation
+---
 
-Recognizes and translates text from every camera frame. The `callback` receives the translated string.
+## 📱 HƯỚNG DẪN CHẠY TRÊN ANDROID (Chi Tiết 100% Không Lỗi)
+
+> 💡 **Lưu ý quan trọng**: Khi cắm cáp USB vào điện thoại thật, bạn bắt buộc phải chạy lệnh cầu nối `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro Server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
+
+### Cách 1: Chạy bằng lệnh Expo CLI (`pnpm` / `npx`)
+
+#### **Bước 1: Kết nối điện thoại và cầu nối cổng USB**
+Cắm cáp USB (bật *Gỡ lỗi USB* và chọn *Truyền tệp*). Mở CMD chạy:
+```cmd
+"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+```
+
+#### **Bước 2: Khởi động Metro Server (Cửa sổ CMD 1)**
+```cmd
+cd example
+pnpm start
+# Hoặc: npx expo start --clear
+```
+
+#### **Bước 3: Biên dịch và chạy app (Cửa sổ CMD 2)**
+```cmd
+cd example
+pnpm run android
+# Hoặc: npx expo run:android
+```
+
+---
+
+### Cách 2: Chạy trực tiếp bằng Gradle (`gradlew installDebug`)
+
+Nếu bạn muốn nạp file APK thẳng vào máy nhanh nhất mà không qua Expo CLI:
+
+```cmd
+# Cửa sổ 1: Cầu nối USB & Bật Metro Server
+"C:\Users\PC\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081 & cd /d C:\cmr\repo-fresh\example & pnpm start
+
+# Cửa sổ 2: Build & Cài đặt APK
+cd /d C:\cmr\repo-fresh\example\android & gradlew.bat installDebug
+```
+
+---
+
+## 🍏 HƯỚNG DẪN CHẠY TRÊN iOS (iPhone / iPad / macOS)
+
+> ⚠️ **Yêu cầu môi trường iOS**: Cần sử dụng máy tính **macOS** có cài đặt **Xcode** (từ App Store) và **CocoaPods**.
+
+### 1. Cài đặt Pods cho iOS
+```sh
+cd example
+pnpm install
+
+cd ios
+pod install
+cd ..
+```
+
+### 2. Chạy trên iPhone thật (Physical Device)
+1. Cắm cáp kết nối iPhone với máy Mac (chọn *Tin cậy máy tính này*).
+2. Chạy lệnh:
+```sh
+cd example
+pnpm run ios --device
+# Hoặc: npx expo run:ios --device
+```
+
+### 3. Chạy trên iOS Simulator (Máy ảo Mac)
+```sh
+cd example
+pnpm ios
+# Hoặc: npx expo run:ios
+```
+
+> ⚠️ **Lưu ý với chip Apple Silicon (M1/M2/M3/M4)**: Google ML Kit chạy mượt 100% trên thiết bị iPhone thật. Nếu chạy trên Simulator, hãy chạy Simulator dưới chế độ Rosetta.
+
+---
+
+## 🛠️ Cấu hình Expo (`app.json`)
+
+Vì thư viện sử dụng mã nguồn Native C++ (Nitro Modules), ứng dụng **cần dùng Expo Prebuild / Dev Client** thay vì Expo Go tiêu chuẩn.
+
+Thêm cấu hình quyền truy cập Camera vào `app.json`:
+
+```json
+{
+  "expo": {
+    "name": "Vision OCR Plus",
+    "slug": "vision-ocr-plus",
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) cần quyền truy cập Camera để nhận diện và dịch văn bản."
+        }
+      ]
+    ]
+  }
+}
+```
+
+---
+
+## 🚀 Đóng gói cài đặt từ xa qua EAS Build (Không cần cáp)
+
+Bạn có thể đóng gói file **APK** (Android) hoặc **IPA** (iOS) qua đám mây của Expo:
+
+```sh
+# 1. Đăng nhập Expo EAS
+npm install -g eas-cli
+eas login
+
+# 2. Build APK Android cài trực tiếp:
+eas build -p android --profile preview
+
+# 3. Build IPA cho iOS:
+eas build -p ios --profile preview
+```
+
+---
+
+## 💻 Hướng dẫn Lập trình (Code Examples)
+
+### 1. Quét và Dịch trực tiếp từ Camera (`mode="translate"`)
 
 ```tsx
-import { Camera } from 'react-native-vision-camera-ocr-plus'
-import { useCameraDevice } from 'react-native-vision-camera'
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { useCameraDevice } from 'react-native-vision-camera';
+import { Camera } from 'react-native-vision-camera-ocr-plus';
 
 export default function App() {
-  const device = useCameraDevice('back')
+  const device = useCameraDevice('back');
+  const [translatedText, setTranslatedText] = React.useState('');
 
+  if (!device) return <Text>No Camera Device</Text>;
+
+  return (
+    <View style={styles.container}>
+      <Camera
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive={true}
+        mode="translate"
+        options={{
+          from: 'vi', // Ngôn ngữ nguồn (Ví dụ: Tiếng Việt)
+          to: 'en',   // Ngôn ngữ đích (Ví dụ: Tiếng Anh)
+          scanRegion: { left: '10%', top: '25%', width: '80%', height: '35%' },
+        }}
+        callback={(text) => {
+          if (typeof text === 'string') {
+            setTranslatedText(text);
+          }
+        }}
+      />
+      <View style={styles.resultBox}>
+        <Text style={styles.resultText}>{translatedText || 'Đang quét...'}</Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  resultBox: {
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 16,
+    borderRadius: 12,
+  },
+  resultText: { color: '#fff', fontSize: 16, textAlign: 'center' },
+});
+```
+
+### 2. Quét văn bản gốc (`mode="recognize"`)
+
+```tsx
+<Camera
+  style={StyleSheet.absoluteFill}
+  device={device}
+  isActive={true}
+  mode="recognize"
+  options={{
+    language: 'latin', // 'latin' | 'chinese' | 'japanese' | 'korean'
+    frameSkipThreshold: 10,
+  }}
+  callback={(data: any) => {
+    console.log('Detected text:', data.resultText);
+    console.log('Text blocks:', data.blocks);
+  }}
+/>
+```
+
+### 3. Nhận diện văn bản từ ảnh tĩnh (`PhotoRecognizer`)
+
+```tsx
+import { PhotoRecognizer } from 'react-native-vision-camera-ocr-plus';
+
+const result = await PhotoRecognizer({
+  uri: 'file:///path/to/image.jpg',
+  orientation: 'portrait',
+});
+console.log('Image Text:', result.resultText);
+```
+
+---
+
+## 📊 Bảng tổng hợp các lệnh thông dụng (`pnpm`)
+
+| Lệnh | Mục đích |
+|---|---|
+| `pnpm install` | Cài đặt dependencies toàn bộ dự án |
+| `cd example && pnpm start` | Khởi động Metro Bundler Server |
   return (
     <Camera
       style={{ flex: 1 }}

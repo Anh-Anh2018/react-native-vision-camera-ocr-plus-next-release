@@ -29,6 +29,7 @@ config.resolver = {
   extraNodeModules: {
     'react': path.join(projectRoot, 'node_modules/react'),
     'react-native': path.join(projectRoot, 'node_modules/react-native'),
+    'react-native-vision-camera-ocr-plus': workspaceRoot,
   },
   // (keep expo defaults but ensure TS extensions present)
   sourceExts: Array.from(

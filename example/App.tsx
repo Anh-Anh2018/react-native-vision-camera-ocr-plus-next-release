@@ -27,10 +27,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const scanRegion = {
-  left: '25%',
-  top: '30%',
-  width: '50%',
-  height: '23%',
+  left: '10%',
+  top: '25%',
+  width: '80%',
+  height: '35%',
 } as ScanRegion;
 
 type LanguageOption = { label: string; value: Languages };
@@ -61,8 +61,9 @@ export default function App() {
   const [detectedText, setDetectedText] = React.useState<string>();
   const [image, setImage] = React.useState<string | null>(null);
   const [imageText, setImageText] = React.useState<string>('');
-  const [sourceLanguage, setSourceLanguage] = React.useState<Languages>('en');
-  const [targetLanguage, setTargetLanguage] = React.useState<Languages>('vi');
+  const [appMode, setAppMode] = React.useState<'recognize' | 'translate'>('translate');
+  const [sourceLanguage, setSourceLanguage] = React.useState<Languages>('vi');
+  const [targetLanguage, setTargetLanguage] = React.useState<Languages>('en');
   const [useCropRegion, setUseCropRegion] = React.useState<boolean>(false);
   const [langPickerMode, setLangPickerMode] = React.useState<'source' | 'target' | null>(null);
   const [isTranslating, setIsTranslating] = React.useState<boolean>(false);
@@ -141,6 +142,7 @@ export default function App() {
 
   const cameraOptions = React.useMemo(
     () => ({
+      language: 'latin',
       from: sourceLanguage,
       to: targetLanguage,
       ...(useCropRegion ? { scanRegion } : {}),
@@ -154,11 +156,13 @@ export default function App() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive
-        mode="translate"
-        options={cameraOptions}
+        mode={appMode}
+        options={cameraOptions as any}
         callback={(data: any) => {
           if (typeof data === 'string') {
             setDetectedText(data);
+          } else if (data && typeof data === 'object' && 'resultText' in data) {
+            setDetectedText(data.resultText);
           }
         }}
       />
@@ -166,6 +170,15 @@ export default function App() {
 
       {/* Control Buttons Bar */}
       <View style={styles.topControlBar}>
+        <Pressable
+          style={[styles.controlBtn, appMode === 'translate' && styles.controlBtnActiveMode]}
+          onPress={() => setAppMode(appMode === 'translate' ? 'recognize' : 'translate')}
+        >
+          <Text style={styles.buttonText}>
+            {appMode === 'translate' ? '🔤 Translate' : '📷 Live OCR'}
+          </Text>
+        </Pressable>
+
         <Pressable
           style={styles.controlBtn}
           onPress={() => setLangPickerMode('source')}
@@ -185,7 +198,7 @@ export default function App() {
           onPress={() => setUseCropRegion(!useCropRegion)}
         >
           <Text style={styles.buttonText}>
-            {useCropRegion ? '🎯 Crop Box' : '🔍 Full Screen'}
+            {useCropRegion ? '🎯 Crop' : '🔍 Full'}
           </Text>
         </Pressable>
       </View>
@@ -241,6 +254,7 @@ export default function App() {
                       } else {
                         setTargetLanguage(item.value);
                       }
+                      setDetectedText('Translating...');
                       setLangPickerMode(null);
                     }}
                   >
@@ -291,8 +305,9 @@ const styles = StyleSheet.create({
   scanRegion: {
     ...scanRegion,
     position: 'absolute',
-    borderWidth: 1,
-    borderColor: 'red',
+    borderWidth: 2,
+    borderColor: '#FF3B30',
+    borderRadius: 12,
   },
   overlay: {
     position: 'absolute',
@@ -338,6 +353,9 @@ const styles = StyleSheet.create({
   },
   controlBtnActive: {
     backgroundColor: 'rgba(255, 59, 48, 0.8)',
+  },
+  controlBtnActiveMode: {
+    backgroundColor: 'rgba(0, 122, 255, 0.8)',
   },
   leftButton: {
     position: 'absolute',
