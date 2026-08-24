@@ -115,39 +115,91 @@ lsof -ti:8081 | xargs kill -9
 
 ---
 
-### 3. Hướng dẫn chạy trên ANDROID
+### 3. Hướng dẫn chạy trên ANDROID (Chi tiết từ A-Z)
 
-> 💡 **Lưu ý quan trọng**: Khi cắm điện thoại Android vào máy tính qua cáp USB, hãy bật **Gỡ lỗi USB (USB Debugging)** và chạy lệnh `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
+> 💡 **Lưu ý quan trọng**: Khi cắm điện thoại Android vào máy tính qua cáp USB, hãy bật **Gỡ lỗi USB (USB Debugging)** trên điện thoại và chạy lệnh `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
 
-#### **Bước 1: Cầu nối cổng Metro qua ADB**
-```sh
-adb reverse tcp:8081 tcp:8081
-```
+#### **Bước 1: Cầu nối cổng Metro qua ADB (Chạy trên mọi máy tính)**
 
-#### **Bước 2: Khởi động Metro Server (Terminal 1)**
+Tùy thuộc vào hệ điều hành và công cụ dòng lệnh của bạn, hãy chọn lệnh tương ứng bên dưới:
+
+##### 🪟 Dành cho Windows:
+- **Cách 1: Nếu máy tính đã có ADB trong biến môi trường PATH:**
+  ```cmd
+  adb reverse tcp:8081 tcp:8081
+  ```
+- **Cách 2: Nếu máy báo lỗi `'adb' is not recognized` (Tự động nhận diện mọi máy Windows qua biến `%LOCALAPPDATA%`):**
+  - Mở **Command Prompt (CMD)** chạy:
+    ```cmd
+    "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+    ```
+  - Hoặc mở **PowerShell** chạy:
+    ```powershell
+    & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+    ```
+- **💡 Mẹo:** Thêm ADB vào biến PATH vĩnh viễn cho máy Windows chỉ với 1 dòng PowerShell:
+  ```powershell
+  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:LOCALAPPDATA\Android\Sdk\platform-tools", "User")
+  ```
+
+##### 🍎 Dành cho macOS:
+- **Nếu đã có PATH:**
+  ```sh
+  adb reverse tcp:8081 tcp:8081
+  ```
+- **Nếu chưa có PATH:**
+  ```sh
+  ~/Library/Android/sdk/platform-tools/adb reverse tcp:8081 tcp:8081
+  ```
+
+##### 🐧 Dành cho Linux:
+- **Nếu đã có PATH:**
+  ```sh
+  adb reverse tcp:8081 tcp:8081
+  ```
+- **Nếu chưa có PATH:**
+  ```sh
+  ~/Android/Sdk/platform-tools/adb reverse tcp:8081 tcp:8081
+  ```
+
+---
+
+#### **Bước 2: Khởi động Metro Server (Cửa sổ Terminal 1)**
+Mở Terminal 1 tại thư mục gốc của dự án:
 ```sh
 cd example
-pnpm start --clear
-# Hoặc: yarn start --clear
-# Hoặc: npx expo start --clear
+
+# Chọn lệnh theo Package Manager bạn sử dụng:
+pnpm start --clear      # Nếu dùng pnpm (Khuyên dùng)
+yarn start --clear      # Nếu dùng yarn
+npm start -- --clear    # Nếu dùng npm
+npx expo start --clear  # Hoặc dùng trực tiếp qua Expo CLI
 ```
 
-#### **Bước 3: Biên dịch và chạy ứng dụng (Terminal 2)**
+#### **Bước 3: Biên dịch và chạy ứng dụng (Cửa sổ Terminal 2)**
+Mở Terminal 2 tại thư mục gốc của dự án:
 ```sh
 cd example
-pnpm run android
-# Hoặc: yarn android
-# Hoặc: npx expo run:android
+
+# Chọn lệnh theo Package Manager bạn sử dụng:
+pnpm run android        # Nếu dùng pnpm
+yarn android            # Nếu dùng yarn
+npm run android         # Nếu dùng npm
+npx expo run:android    # Hoặc dùng trực tiếp qua Expo CLI
 ```
 
-#### **Cách chạy trực tiếp bằng Gradle (Tùy chọn):**
-```sh
-# Trên Windows:
-cd example/android && gradlew.bat installDebug
-
-# Trên macOS / Linux:
-cd example/android && ./gradlew installDebug
-```
+#### **Cách biên dịch trực tiếp bằng Gradle (Tùy chọn):**
+- **Trên Windows (CMD / PowerShell):**
+  ```cmd
+  cd example\android
+  gradlew.bat installDebug
+  ```
+- **Trên macOS / Linux (Terminal):**
+  ```sh
+  cd example/android
+  chmod +x gradlew
+  ./gradlew installDebug
+  ```
 
 ---
 
