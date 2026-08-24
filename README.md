@@ -185,6 +185,26 @@ pnpm run ios
 
 ---
 
+### 5. Hướng dẫn quét mã QR qua Expo Go & Khắc phục lỗi phiên bản
+
+Khi chạy lệnh `cd example && pnpm start` (hoặc `npx expo start --clear`), Metro Bundler sẽ hiển thị mã QR trên Terminal.
+
+#### ⚠️ Khắc phục lỗi màn hình xanh: `Project is incompatible with this version of Expo Go`
+
+Nếu người dùng quét mã QR và điện thoại hiện thông báo lỗi màu xanh:
+> **"Project is incompatible with this version of Expo Go"**  
+> *"This project requires a newer version of Expo Go. How to fix this error: Download the latest version of Expo Go from the Play Store."*
+
+**Nguyên nhân:** Điện thoại đang cài phiên bản Expo Go cũ hơn phiên bản **Expo SDK 54** của dự án.
+
+**Cách khắc phục:**
+1. Mở **Google Play Store** (trên Android) hoặc **App Store** (trên iOS).
+2. Tìm kiếm ứng dụng **Expo Go**.
+3. Nhấn nút **"Cập nhật" (Update)** để nâng cấp Expo Go lên bản mới nhất.
+4. Mở lại Expo Go và quét lại mã QR trên màn hình Terminal là vào app được ngay.
+
+---
+
 ## 🛠️ Cấu hình Expo (`app.json`)
 
 Do thư viện sử dụng các module C++ Native (Nitro Modules), ứng dụng cần cấu hình quyền truy cập Camera trong `app.json`:
