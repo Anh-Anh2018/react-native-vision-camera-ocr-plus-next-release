@@ -69,191 +69,51 @@ yarn add react-native-vision-camera-ocr-plus react-native-nitro-modules react-na
 
 ---
 
-## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN EXAMPLE (Cross-Platform / Mọi Hệ Điều Hành)
+## 🚀 HƯỚNG DẪN CHẠY DỰ ÁN (CHẠY TRỰC TIẾP — 1 HƯỚNG DUY NHẤT)
 
-### 1. Cài đặt dependencies và build thư viện
-
-Chạy tại thư mục gốc của repository:
-
-```sh
-# Dùng pnpm (Khuyên dùng)
-pnpm install
-pnpm prepare
-
-# Hoặc dùng yarn
-yarn install
-yarn prepare
-
-# Hoặc dùng npm
-npm install
-npm run prepare
-```
+> ⛔ **LƯU Ý:** Thư viện sử dụng mã nguồn C++ Native (Google ML Kit, Nitro Modules). **KHÔNG dùng app Expo Go** trên điện thoại để quét mã QR vì sẽ bị lỗi màn hình xanh không tương thích. Hãy chạy trực tiếp bằng lệnh dưới đây:
 
 ---
 
-### 2. Xử lý giải phóng cổng Metro (Port 8081) nếu bị chiếm
+### 🪟 DÀNH CHO MÁY TÍNH WINDOWS (CHẠY ANDROID)
 
-Nếu cổng `8081` đang bị tiến trình khác chiếm giữ, hãy chạy lệnh tương ứng với hệ điều hành:
+> **Chuẩn bị:** Cắm cáp USB điện thoại vào máy tính (bật **Gỡ lỗi USB / USB Debugging** trên điện thoại).
 
-#### **Trên Windows (PowerShell / Command Prompt):**
-```powershell
-# Cách 1: Tự động kill port nhanh (áp dụng mọi máy)
-npx kill-port 8081
-
-# Cách 2: Bằng lệnh PowerShell gốc
-Get-Process -Id (Get-NetTCPConnection -LocalPort 8081 -ErrorAction SilentlyContinue).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force
+#### **Bước 1: Cài đặt và build thư viện (Chạy 1 lần duy nhất)**
+Mở **Command Prompt (CMD)** tại thư mục gốc của repository:
+```cmd
+pnpm install && pnpm prepare
 ```
 
-#### **Trên macOS / Linux (Terminal):**
-```sh
-# Cách 1: Tự động kill port nhanh
-npx kill-port 8081
-
-# Cách 2: Bằng lệnh Unix gốc
-lsof -ti:8081 | xargs kill -9
+#### **Bước 2: Khởi động Metro Bundler Server (Mở cửa sổ CMD 1)**
+```cmd
+cd example && pnpm start --clear
 ```
+
+#### **Bước 3: Nạp ứng dụng lên điện thoại (Mở cửa sổ CMD 2)**
+```cmd
+adb reverse tcp:8081 tcp:8081 || "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+cd example\android && gradlew.bat installDebug
+```
+> 🎉 **Xong!** Ứng dụng sẽ tự động được cài đặt và mở thẳng trên điện thoại của bạn với đầy đủ tính năng Camera OCR On-Device và Dịch thuật thời gian thực siêu nhanh.
 
 ---
 
-### 3. Hướng dẫn chạy trên ANDROID (Chi tiết từ A-Z)
+### 🍎 DÀNH CHO MÁY TÍNH MACOS (CHẠY IPHONE / IPAD HOẶC ANDROID)
 
-> 💡 **Lưu ý quan trọng**: Khi cắm điện thoại Android vào máy tính qua cáp USB, hãy bật **Gỡ lỗi USB (USB Debugging)** trên điện thoại và chạy lệnh `adb reverse tcp:8081 tcp:8081` để điện thoại kết nối được với Metro server trên máy tính (tránh lỗi màn hình đỏ `Unable to load script`).
-
-#### **Bước 1: Cầu nối cổng Metro qua ADB (Chạy trên mọi máy tính)**
-
-Tùy thuộc vào hệ điều hành và công cụ dòng lệnh của bạn, hãy chọn lệnh tương ứng bên dưới:
-
-##### 🪟 Dành cho Windows:
-- **Cách 1: Nếu máy tính đã có ADB trong biến môi trường PATH:**
-  ```cmd
-  adb reverse tcp:8081 tcp:8081
-  ```
-- **Cách 2: Nếu máy báo lỗi `'adb' is not recognized` (Tự động nhận diện mọi máy Windows qua biến `%LOCALAPPDATA%`):**
-  - Mở **Command Prompt (CMD)** chạy:
-    ```cmd
-    "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
-    ```
-  - Hoặc mở **PowerShell** chạy:
-    ```powershell
-    & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
-    ```
-- **💡 Mẹo:** Thêm ADB vào biến PATH vĩnh viễn cho máy Windows chỉ với 1 dòng PowerShell:
-  ```powershell
-  [Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:LOCALAPPDATA\Android\Sdk\platform-tools", "User")
-  ```
-
-##### 🍎 Dành cho macOS:
-- **Nếu đã có PATH:**
-  ```sh
-  adb reverse tcp:8081 tcp:8081
-  ```
-- **Nếu chưa có PATH:**
-  ```sh
-  ~/Library/Android/sdk/platform-tools/adb reverse tcp:8081 tcp:8081
-  ```
-
-##### 🐧 Dành cho Linux:
-- **Nếu đã có PATH:**
-  ```sh
-  adb reverse tcp:8081 tcp:8081
-  ```
-- **Nếu chưa có PATH:**
-  ```sh
-  ~/Android/Sdk/platform-tools/adb reverse tcp:8081 tcp:8081
-  ```
-
----
-
-#### **Bước 2: Khởi động Metro Server (Cửa sổ Terminal 1)**
-Mở Terminal 1 tại thư mục gốc của dự án:
+#### **1. Chạy trên iPhone thật (Cắm cáp USB):**
 ```sh
-cd example
-
-# Chọn lệnh theo Package Manager bạn sử dụng:
-pnpm start --clear      # Nếu dùng pnpm (Khuyên dùng)
-yarn start --clear      # Nếu dùng yarn
-npm start -- --clear    # Nếu dùng npm
-npx expo start --clear  # Hoặc dùng trực tiếp qua Expo CLI
-```
-
-#### **Bước 3: Biên dịch và chạy ứng dụng (Cửa sổ Terminal 2)**
-Mở Terminal 2 tại thư mục gốc của dự án:
-```sh
-cd example
-
-# Chọn lệnh theo Package Manager bạn sử dụng:
-pnpm run android        # Nếu dùng pnpm
-yarn android            # Nếu dùng yarn
-npm run android         # Nếu dùng npm
-npx expo run:android    # Hoặc dùng trực tiếp qua Expo CLI
-```
-
-#### **Cách biên dịch trực tiếp bằng Gradle (Tùy chọn):**
-- **Trên Windows (CMD / PowerShell):**
-  ```cmd
-  cd example\android
-  gradlew.bat installDebug
-  ```
-- **Trên macOS / Linux (Terminal):**
-  ```sh
-  cd example/android
-  chmod +x gradlew
-  ./gradlew installDebug
-  ```
-
----
-
-### 4. Hướng dẫn chạy trên iOS (iPhone / iPad / macOS)
-
-> ⚠️ **Yêu cầu**: Cần sử dụng máy tính **macOS** có cài đặt **Xcode** và **CocoaPods**.
-
-#### **Bước 1: Cài đặt Pods**
-```sh
-cd example
-pnpm install
-
-cd ios
-pod install
-cd ..
-```
-
-#### **Bước 2: Chạy trên thiết bị thật (iPhone / iPad)**
-1. Cắm cáp kết nối iPhone với máy Mac (chọn *Tin cậy máy tính này*).
-2. Chạy lệnh:
-```sh
-cd example
+pnpm install && pnpm prepare
+cd example/ios && pod install && cd ..
 pnpm run ios --device
-# Hoặc: yarn ios --device
-# Hoặc: npx expo run:ios --device
 ```
 
-#### **Bước 3: Chạy trên iOS Simulator (Máy ảo Mac)**
+#### **2. Chạy trên Android (Máy Mac):**
 ```sh
-cd example
-pnpm run ios
-# Hoặc: yarn ios
-# Hoặc: npx expo run:ios
+pnpm install && pnpm prepare
+adb reverse tcp:8081 tcp:8081 || ~/Library/Android/sdk/platform-tools/adb reverse tcp:8081 tcp:8081
+cd example/android && ./gradlew installDebug
 ```
-
----
-
-### 5. Hướng dẫn quét mã QR qua Expo Go & Khắc phục lỗi phiên bản
-
-Khi chạy lệnh `cd example && pnpm start` (hoặc `npx expo start --clear`), Metro Bundler sẽ hiển thị mã QR trên Terminal.
-
-#### ⚠️ Khắc phục lỗi màn hình xanh: `Project is incompatible with this version of Expo Go`
-
-Nếu người dùng quét mã QR và điện thoại hiện thông báo lỗi màu xanh:
-> **"Project is incompatible with this version of Expo Go"**  
-> *"This project requires a newer version of Expo Go. How to fix this error: Download the latest version of Expo Go from the Play Store."*
-
-**Nguyên nhân:** Điện thoại đang cài phiên bản Expo Go cũ hơn phiên bản **Expo SDK 54** của dự án.
-
-**Cách khắc phục:**
-1. Mở **Google Play Store** (trên Android) hoặc **App Store** (trên iOS).
-2. Tìm kiếm ứng dụng **Expo Go**.
-3. Nhấn nút **"Cập nhật" (Update)** để nâng cấp Expo Go lên bản mới nhất.
-4. Mở lại Expo Go và quét lại mã QR trên màn hình Terminal là vào app được ngay.
 
 ---
 
