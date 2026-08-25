@@ -80,22 +80,24 @@ yarn add react-native-vision-camera-ocr-plus react-native-nitro-modules react-na
 > **Chuẩn bị:** Cắm cáp USB điện thoại vào máy tính (bật **Gỡ lỗi USB / USB Debugging** trên điện thoại).
 
 #### **Bước 1: Cài đặt và build thư viện (Chạy 1 lần duy nhất)**
-Mở **Command Prompt (CMD)** tại thư mục gốc của repository:
-```cmd
-pnpm install && pnpm prepare
+Mở **PowerShell** hoặc **Command Prompt (CMD)** tại thư mục gốc của repository:
+```sh
+pnpm install
+pnpm prepare
 ```
 
-#### **Bước 2: Khởi động Metro Bundler Server (Mở cửa sổ CMD 1)**
-```cmd
-cd example && pnpm start --clear
+#### **Bước 2: Khởi động Metro Bundler Server (Mở cửa sổ Terminal / CMD 1)**
+```sh
+cd example
+pnpm start --clear
 ```
 
-#### **Bước 3: Nạp ứng dụng lên điện thoại (Mở cửa sổ CMD 2)**
-```cmd
-adb reverse tcp:8081 tcp:8081 || "%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
-cd example\android && gradlew.bat installDebug
+#### **Bước 3: Biên dịch và nạp app lên điện thoại (Mở cửa sổ Terminal / CMD 2)**
+```sh
+cd example
+pnpm run android
 ```
-> 🎉 **Xong!** Ứng dụng sẽ tự động được cài đặt và mở thẳng trên điện thoại của bạn với đầy đủ tính năng Camera OCR On-Device và Dịch thuật thời gian thực siêu nhanh.
+> 🎉 **Xong!** Lệnh `pnpm run android` (hoặc `npx expo run:android`) sẽ tự động kết nối ADB, nạp cầu nối cổng 8081, build APK và cài đặt thẳng vào điện thoại của bạn!
 
 ---
 
@@ -103,17 +105,25 @@ cd example\android && gradlew.bat installDebug
 
 #### **1. Chạy trên iPhone thật (Cắm cáp USB):**
 ```sh
-pnpm install && pnpm prepare
+pnpm install
+pnpm prepare
 cd example/ios && pod install && cd ..
-pnpm run ios --device
+pnpm run ios
 ```
 
 #### **2. Chạy trên Android (Máy Mac):**
 ```sh
-pnpm install && pnpm prepare
-adb reverse tcp:8081 tcp:8081 || ~/Library/Android/sdk/platform-tools/adb reverse tcp:8081 tcp:8081
-cd example/android && ./gradlew installDebug
+pnpm install
+pnpm prepare
+cd example
+pnpm run android
 ```
+
+---
+
+### 💡 Dành cho người dùng `yarn` hoặc `npm`:
+- Thay `pnpm start --clear` bằng `yarn start --clear` (hoặc `npm start -- --clear`)
+- Thay `pnpm run android` bằng `yarn android` (hoặc `npm run android`)
 
 ---
 
